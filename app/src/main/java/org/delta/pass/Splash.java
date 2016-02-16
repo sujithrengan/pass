@@ -1,5 +1,6 @@
 package org.delta.pass;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -58,7 +59,7 @@ public class Splash extends ActionBarActivity {
             // no problem calling su here
             if (Shell.SU.available()) {
 
-                suResult=Shell.SU.run(new String[]{"busybox chmod -c -R 777 "+Utilities.dbpath});
+                suResult=Shell.SU.run(new String[]{"busybox chmod -c -R 777 "+Utilities.dbpath2});
                 return true;
 
             }
@@ -86,13 +87,28 @@ public class Splash extends ActionBarActivity {
         else
             tv_root.setText("Not Rooted");
 
-        File file = new File("/data/data/com.delta.pragyan16/databases/pragyan.db");
+        File file = new File(Utilities.dbpath2+Utilities.dbname2);
         if (file.exists()) {
-            SQLiteDatabase db = SQLiteDatabase.openDatabase("/data/data/com.delta.pragyan16/databases/pragyan.db", null, SQLiteDatabase.OPEN_READWRITE);
-            Cursor resultSet = db.rawQuery("Select * from events", null);
+            String jid="919655966967@s.whatsapp.net";
+            SQLiteDatabase db = SQLiteDatabase.openDatabase(Utilities.dbpath2+Utilities.dbname2, null, SQLiteDatabase.OPEN_READWRITE);
+            /*
+            //SELECT
+            Cursor resultSet = db.rawQuery("Select * from wa_contacts where display_name=\"Pranesh\"", null);
             resultSet.moveToFirst();
-            tv_root.setText(resultSet.toString());
+            tv_root.setText(resultSet.getString(5)+"-"+resultSet.getString(0));
+            //UPDATE
+            ContentValues values = new ContentValues();
+            String where = "jid" + "= '" + jid + "'";
+            values.put("status", "BlackoutEpisodes");
+            int count =db.update("wa_contacts", values, where, null);
+            */
+            ContentValues values = new ContentValues();
+            String where = "jid" + "= '" + jid + "'";
+            values.put("status", "BlackoutEpisode");
+            int count =db.update("wa_contacts", values, where, null);
+
             db.close();
+            Toast.makeText(Splash.this,"xxx"+String.valueOf(count),Toast.LENGTH_SHORT).show();
         }
         else{
             Toast.makeText(Splash.this,"hhh",Toast.LENGTH_SHORT).show();
