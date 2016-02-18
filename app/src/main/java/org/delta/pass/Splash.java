@@ -1,14 +1,21 @@
 package org.delta.pass;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,37 +28,12 @@ import eu.chainfire.libsuperuser.Shell;
 
 public class Splash extends ActionBarActivity {
 
+    String utext="null";
 
     Boolean root;
-    private boolean canExecuteSuCommand()
-    {
-        boolean i;
-        try
-        {
-            Runtime.getRuntime().exec("su");
 
-            return true;
-        }
-        catch (IOException localIOException)
-        {
-            return false;
-        }
-    }
-    private boolean hasSuperuserApk()
-    {
-        return new File("/system/app/Superuser.apk").exists();
-    }
 
-    private boolean isTestKeyBuild()
-    {
-        String str = Build.TAGS;
-        if ((str != null) && (str.contains("test-keys")))
-            return true;
-        else return false;
-
-    }
-
-    private class SUTask extends AsyncTask<Void, Boolean, Boolean> {
+        private class SUTask extends AsyncTask<Void, Boolean, Boolean> {
         private List<String> suResult = null;
         @Override
         protected Boolean doInBackground(Void... params) {
@@ -60,6 +42,7 @@ public class Splash extends ActionBarActivity {
             if (Shell.SU.available()) {
 
                 suResult=Shell.SU.run(new String[]{"busybox chmod -c -R 777 "+Utilities.dbpath2});
+                //suResult=Shell.SU.run(new String[]{"cat storage/sdcard1/s.txt" });
                 return true;
 
             }
@@ -78,42 +61,86 @@ public class Splash extends ActionBarActivity {
 
     private void setResult(List<String> suResult)
     {
-        TextView tv_root=(TextView)findViewById(R.id.tv_root);
+       final TextView tv_root=(TextView)findViewById(R.id.tv_root);
         StringBuilder sb=new StringBuilder();
+        sb.append(">");
         if(suResult!=null)
-            for(String line:suResult)sb.append(line).append("\n");
+            for(String line:suResult)sb.append(line).append("\n>");
         if(root)
             tv_root.setText("Rooted\n"+sb.toString());
         else
             tv_root.setText("Not Rooted");
 
         File file = new File(Utilities.dbpath2+Utilities.dbname2);
+
         if (file.exists()) {
-            String jid="919655966967@s.whatsapp.net";
+            String jid="919884465829@s.whatsapp.net";
             SQLiteDatabase db = SQLiteDatabase.openDatabase(Utilities.dbpath2+Utilities.dbname2, null, SQLiteDatabase.OPEN_READWRITE);
-            /*
+
             //SELECT
-            Cursor resultSet = db.rawQuery("Select * from wa_contacts where display_name=\"Pranesh\"", null);
-            resultSet.moveToFirst();
-            tv_root.setText(resultSet.getString(5)+"-"+resultSet.getString(0));
-            //UPDATE
+            Cursor resultSet = db.rawQuery("Select * from wa_contacts where jid=\""+jid+"\"", null);
+            if(resultSet!=null)
+            {
+                resultSet.moveToFirst();
+                tv_root.setText(tv_root.getText() + "\n" + resultSet.getString(5) + "-" + resultSet.getString(0) + "--" + resultSet.getString(7));
+
+
+                ContentValues values = new ContentValues();
+                String where = "jid" + "= '" + jid + "'";
+                values.put("display_name", "Gunner");
+                values.put("sort_name", "Gunner");
+                int count = db.update("wa_contacts", values, where, null);
+                Toast.makeText(Splash.this,"xxx"+String.valueOf(count),Toast.LENGTH_SHORT).show();
+
+            }
+            /*//UPDATE
             ContentValues values = new ContentValues();
             String where = "jid" + "= '" + jid + "'";
             values.put("status", "BlackoutEpisodes");
             int count =db.update("wa_contacts", values, where, null);
             */
-            ContentValues values = new ContentValues();
-            String where = "jid" + "= '" + jid + "'";
-            values.put("status", "BlackoutEpisode");
-            int count =db.update("wa_contacts", values, where, null);
+
+
+
 
             db.close();
-            Toast.makeText(Splash.this,"xxx"+String.valueOf(count),Toast.LENGTH_SHORT).show();
+
         }
-        else{
+
+       else{
             Toast.makeText(Splash.this,"hhh",Toast.LENGTH_SHORT).show();
         }
 
+
+
+    }
+
+    private void ShowDialog()
+    {
+        AlertDialog.Builder ab=new AlertDialog.Builder(this);
+        ab.setMessage("Content Modified!");
+        ab.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //Toast.makeText(this,"Confirmed",Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        AlertDialog ad=ab.create();
+        ad.show();
+        Thread p=new Thread(new Runnable() {
+            private List<String> suResult = null;
+            @Override
+            public void run() {
+                Log.e("loggg", utext);
+                suResult=Shell.SU.run(new String[]{"echo \""+ utext+"\" > "+"storage/sdcard1/s.txt" });
+
+            }
+
+        });
+        p.start();
     }
 
     @Override
@@ -121,8 +148,6 @@ public class Splash extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         new SUTask().execute();
-
-
 
     }
 
@@ -145,6 +170,7 @@ public class Splash extends ActionBarActivity {
         if (id == R.id.action_settings) {
             return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
