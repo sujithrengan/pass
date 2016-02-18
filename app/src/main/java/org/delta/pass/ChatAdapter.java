@@ -1,61 +1,52 @@
 package org.delta.pass;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  * Created by HP on 19-02-2016.
  */
-public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHolder> {
+public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     private String[] mDataset;
-    ArrayList<String> contact;
+    ArrayList<String> message;
     ArrayList<String> timestamp;
-    ArrayList<String> jid;
-    Context context;
 
-
-    public Date EpochConvert(String date)
-    {
-        return new Date(Long.parseLong(date));
-    }
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
     public static class ViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
-        public TextView Contact;
+        public TextView Message;
         public TextView TimeStamp;
+        public LinearLayout box;
         public ViewHolder(View v) {
             super(v);
-            Contact = (TextView)v.findViewById(R.id.Contact);
+            Message = (TextView)v.findViewById(R.id.Message);
             TimeStamp = (TextView)v.findViewById(R.id.Time);
+            box = (LinearLayout)v.findViewById(R.id.singlelistlayout);
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ChatListAdapter(ArrayList<String> contact,ArrayList<String> tm,ArrayList<String> jid,Context context) {
-        this.contact=contact;
+    public ChatAdapter(ArrayList<String> message,ArrayList<String> tm) {
+        this.message=message;
         this.timestamp=tm;
-        this.jid=jid;
-        this.context=context;
     }
 
     // Create new views (invoked by the layout manager)
     @Override
-    public ChatListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+    public ChatAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+                                                         int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.chatlist_single, parent, false);
+                .inflate(R.layout.chat_single, parent, false);
         // set the view's size, margins, paddings and layout parameters
 
         ViewHolder vh = new ViewHolder(v);
@@ -64,38 +55,22 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
-
-
-        holder.Contact.setText(contact.get(position));
+        holder.Message.setText(message.get(position).substring(0,message.get(position).length()-1));
         holder.TimeStamp.setText(timestamp.get(position));
 
-        Date d=EpochConvert(timestamp.get(position));
-        holder.TimeStamp.setText(d.getHours()+":"+d.getMinutes()+"  "+d.getDate()+"/"+String.valueOf(d.getMonth()+1)+"/"+d.getYear());
-
-        holder.Contact.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-
-                Intent i=new Intent(context,ChatScreen.class);
-
-                i.putExtra("jid",jid.get(position));
-
-
-                context.startActivity(i);
-            }
-        });
-
-
+        if(message.get(position).endsWith("0"))
+            holder.box.setGravity(Gravity.LEFT);
+        else
+            holder.box.setGravity(Gravity.RIGHT);
 
     }
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return contact.size();
+        return message.size();
     }
 }

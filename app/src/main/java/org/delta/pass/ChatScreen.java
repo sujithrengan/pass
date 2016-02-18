@@ -2,13 +2,10 @@ package org.delta.pass;
 
 import android.app.Activity;
 import android.app.SearchManager;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
+import android.net.Uri;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -16,41 +13,37 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
 
 
-public class ChatList extends Activity {
-
+public class ChatScreen extends Activity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     SwipeRefreshLayout mSwipeRefreshLayout;
-    ArrayList<String> contact;
+    ArrayList<String> messages;
     ArrayList<String> timestamp;
-    ArrayList<String> jid;
 
+    String jid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_list);
-/*
+        setContentView(R.layout.activity_chat_screen);
 
-        if (savedInstanceState == null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            SwipeRefreshChatList fragment = new SwipeRefreshChatList();
-            transaction.replace(R.id.sample_content_fragment, fragment);
-            transaction.commit();
-        }
-*/
 
-        contact=new ArrayList<String>();
+        Bundle b=getIntent().getExtras();
+        jid="";
+        jid=b.getString("jid");
+
+
+
+
+        messages=new ArrayList<String>();
         timestamp=new ArrayList<String>();
-        jid=new ArrayList<String>();
         mRecyclerView = (RecyclerView) findViewById(R.id.recycle_view);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setColorScheme(R.color.color_scheme_1_1, R.color.color_scheme_1_2,
@@ -66,7 +59,7 @@ public class ChatList extends Activity {
 
 
         getChatList();
-        mAdapter = new ChatListAdapter(contact,timestamp,jid,ChatList.this);
+        mAdapter = new ChatAdapter(messages,timestamp);
         mRecyclerView.setAdapter(mAdapter);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -80,8 +73,6 @@ public class ChatList extends Activity {
     }
 
 
-
-
     private void getChatList()
     {
         File file = new File(Utilities.dbpath+Utilities.dbname_messages);
@@ -91,20 +82,18 @@ public class ChatList extends Activity {
             SQLiteDatabase db = SQLiteDatabase.openDatabase(Utilities.dbpath+Utilities.dbname_messages, null, SQLiteDatabase.OPEN_READWRITE);
 
             //SELECT
-            Cursor cursor = db.rawQuery("Select key_remote_jid,subject,sort_timestamp from chat_list order by sort_timestamp desc", null);
+            Cursor cursor = db.rawQuery("Select key_from_me,data,timestamp from messages where key_remote_jid=\""+jid+"\" order by timestamp desc", null);
             if (cursor.moveToFirst()) {
 
-                contact.clear();
+                messages.clear();
                 timestamp.clear();
-                jid.clear();
                 do {
-                    String c=cursor.getString(0);
-                    if(c.endsWith("s.whatsapp.net"))
-                    contact.add(c.substring(2,c.indexOf("@")));
+                    Integer k=cursor.getInt(0);
+                    if(k==0)
+                        messages.add(cursor.getString(1)+"0");
                     else
-                        contact.add(cursor.getString(1));
+                        messages.add(cursor.getString(1)+"1");
                     timestamp.add(cursor.getString(2));
-                    jid.add(cursor.getString(0));
 
                 } while (cursor.moveToNext());
             }
@@ -123,19 +112,55 @@ public class ChatList extends Activity {
         }
 
         else{
-            Toast.makeText(ChatList.this,"NoRoot",Toast.LENGTH_SHORT).show();
+            Toast.makeText(ChatScreen.this, "NoRoot", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void refreshContent(){
 
         getChatList();
-        mAdapter = new ChatListAdapter(contact,timestamp,jid,ChatList.this);
+        mAdapter = new ChatAdapter(messages,timestamp);
         mRecyclerView.setAdapter(mAdapter);
         mSwipeRefreshLayout.setRefreshing(false);
 
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_chat_screen, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        if (id == R.id.action_reply) {
+
+            final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
+            intent.setPackage("com.google.android.googlequicksearchbox");
+            intent.putExtra(SearchManager.QUERY, "Send Whatsapp text to Pranav");
+            startActivity(intent);
+            return true;
         }
 
 
+        if (id == R.id.action_reply_w) {
+            Uri uri = Uri.parse("smsto:" + jid.substring(0,jid.indexOf("@")));
+            Intent i = new Intent(Intent.ACTION_SENDTO, uri);
+            i.setPackage("com.whatsapp");
+            startActivity(Intent.createChooser(i, ""));
+        }
 
+        return super.onOptionsItemSelected(item);
+    }
 }
