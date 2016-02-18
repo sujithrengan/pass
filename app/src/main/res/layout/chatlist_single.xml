@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:android.support.v7.cardview="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:padding="5dp"
+
+
     android:layout_height="match_parent"
-    android:layout_margin="1dp"
+
     android:id="@+id/singlelistlayout">
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android.support.v7.cardview:cardBackgroundColor="#616161"
-        android:layout_height="wrap_content">
+
+        android:layout_height="wrap_content"
+
+        card_view:cardUseCompatPadding="true"
+
+
+        card_view:cardCornerRadius="4dp"
+        card_view:cardElevation="3dp"
+
+
+        >
 
 
     <LinearLayout
@@ -37,6 +49,7 @@
                     android:layout_weight="7"
                     android:id="@+id/Contact"
 
+                    android:textColor="#ffffff"
                     android:text="Contact name"
                     android:textSize="25sp"
 
@@ -77,6 +90,7 @@
                     android:gravity="right"
                     android:layout_marginRight="5dp"
                     android:text="timestamp"
+                    android:textColor="#ffffff"
 
                     android:textSize="14sp" />
 

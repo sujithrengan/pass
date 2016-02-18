@@ -41,4 +41,8 @@
     <color name="color_scheme_3_3">#8ABD00</color>
     <color name="color_scheme_3_4">#7CAF00</color>
 
+
+    <color name="color_g">#4CAF50</color>
+    <color name="color_g2">#43A047</color>
+
 </resources>

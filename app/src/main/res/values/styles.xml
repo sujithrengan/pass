@@ -1,17 +1,40 @@
 <resources>
 
+
+
+
+
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat">
+    <style name="AppTheme" parent="android:Theme.Material">
         <!-- Customize your theme here. -->
 
 
-        <item name="android:colorPrimary">@color/color_scheme_2_2</item>
+        <item name="android:elevation">0dp</item>
+        <item name="android:colorPrimary">@color/color_g</item>
         <!--   darker variant for the status bar and contextual app bars -->
-        <!--<item name="android:colorPrimaryDark">@color/color_scheme_1_4</item>
-        -->
+        <item name="android:colorPrimaryDark">@color/color_g2</item>
+
         <!--   theme UI controls like checkboxes and text fields -->
 
         <!--<item name="android:windowBackground"></item>-->
+    </style>
+
+    <style name="Theme.Kpi_Schedule.full" parent="android:Theme.Material.Light.DarkActionBar">
+
+        <item name="android:colorPrimaryDark">@color/color_g2</item>
+
+
+        <item name="android:elevation">0dp</item>
+
+
+        <item name="android:actionBarStyle">@style/ActionBar.Solid.Kpi_Schedule.full</item>
+    </style>
+
+    <style name="ActionBar.Solid.Kpi_Schedule.full" parent="android:Widget.Material.ActionBar.Solid">
+
+        <item name="android:background">@color/color_g</item>
+        <item name="android:elevation">0dp</item>
+        <item name="android:displayOptions">homeAsUp</item>
     </style>
 
 </resources>
