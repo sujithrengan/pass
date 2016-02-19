@@ -18,6 +18,10 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+
 
 public class ChatScreen extends Activity {
     private RecyclerView mRecyclerView;
@@ -60,7 +64,15 @@ public class ChatScreen extends Activity {
 
         getChatList();
         mAdapter = new ChatAdapter(messages,timestamp);
-        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
+
+        AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
+        ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
+        //        scaleAdapter.setFirstOnly(false);
+        //        scaleAdapter.setInterpolator(new OvershootInterpolator());
+        mRecyclerView.setAdapter(scaleAdapter);
+        //mRecyclerView.setAdapter(mAdapter);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -120,7 +132,15 @@ public class ChatScreen extends Activity {
 
         getChatList();
         mAdapter = new ChatAdapter(messages,timestamp);
-        mRecyclerView.setAdapter(mAdapter);
+
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
+
+        AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
+        ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
+        //        scaleAdapter.setFirstOnly(false);
+        //        scaleAdapter.setInterpolator(new OvershootInterpolator());
+        mRecyclerView.setAdapter(scaleAdapter);
+        //mRecyclerView.setAdapter(mAdapter);
         mSwipeRefreshLayout.setRefreshing(false);
 
     }

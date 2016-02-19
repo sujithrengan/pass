@@ -33,7 +33,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="20"
-
+            android:layout_marginBottom="2dp"
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <LinearLayout
@@ -41,7 +41,8 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:paddingLeft="5dp"
-                android:layout_weight="10">
+                android:gravity="top"
+                >
 
                 <TextView
                     android:layout_width="0dp"
@@ -66,11 +67,20 @@
                     android:textSize="15sp"
                     />
             </LinearLayout>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/profilepic"
+                android:visibility="gone"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_weight="6">
+                android:layout_marginTop="2dp"
+                android:gravity="bottom"
+                >
 
                 <TextView
                     android:layout_width="0dp"

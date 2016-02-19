@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by HP on 19-02-2016.
@@ -59,7 +60,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         holder.Message.setText(message.get(position).substring(0,message.get(position).length()-1));
-        holder.TimeStamp.setText(timestamp.get(position));
+        //holder.TimeStamp.setText(timestamp.get(position));
+
+        Date d=ChatListAdapter.EpochConvert(timestamp.get(position));
+        holder.TimeStamp.setText(d.getHours()+":"+d.getMinutes()+"  "+d.getDate()+"/"+String.valueOf(d.getMonth()+1)+"/"+d.getYear());
 
         if(message.get(position).endsWith("0"))
             holder.box.setGravity(Gravity.LEFT);

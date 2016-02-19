@@ -6,14 +6,17 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
@@ -21,6 +24,13 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
+
+import eu.chainfire.libsuperuser.Shell;
+import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.adapters.ScaleInAnimationAdapter;
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+
 
 
 public class ChatList extends Activity {
@@ -33,6 +43,33 @@ public class ChatList extends Activity {
     ArrayList<String> timestamp;
     ArrayList<String> jid;
 
+
+    private class SUTask extends AsyncTask<Void, Boolean, Boolean> {
+        private List<String> suResult = null;
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // this method is executed in a background thread
+            // no problem calling su here
+
+            if (Shell.SU.available()) {
+
+                suResult=Shell.SU.run(new String[]{"busybox chmod -c -R 777 "+Utilities.ppicpath});
+                //suResult=Shell.SU.run(new String[]{"cat storage/sdcard1/s.txt" });
+                return true;
+
+            }
+            else
+                return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+
+            Log.e("ll",suResult.get(0));
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +84,12 @@ public class ChatList extends Activity {
             transaction.commit();
         }
 */
+
+
+
+        new SUTask().execute();
+
+
 
         contact=new ArrayList<String>();
         timestamp=new ArrayList<String>();
@@ -67,7 +110,17 @@ public class ChatList extends Activity {
 
         getChatList();
         mAdapter = new ChatListAdapter(contact,timestamp,jid,ChatList.this);
-        mRecyclerView.setAdapter(mAdapter);
+
+
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
+
+        AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
+        ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
+        //        scaleAdapter.setFirstOnly(false);
+        //        scaleAdapter.setInterpolator(new OvershootInterpolator());
+        mRecyclerView.setAdapter(scaleAdapter);
+
+        //mRecyclerView.setAdapter(mAdapter);
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -131,7 +184,14 @@ public class ChatList extends Activity {
 
         getChatList();
         mAdapter = new ChatListAdapter(contact,timestamp,jid,ChatList.this);
-        mRecyclerView.setAdapter(mAdapter);
+        //mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
+
+        AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
+        ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
+        //        scaleAdapter.setFirstOnly(false);
+        //        scaleAdapter.setInterpolator(new OvershootInterpolator());
+        mRecyclerView.setAdapter(scaleAdapter);
         mSwipeRefreshLayout.setRefreshing(false);
 
         }

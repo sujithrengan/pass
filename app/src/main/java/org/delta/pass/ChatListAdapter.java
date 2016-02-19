@@ -2,11 +2,14 @@ package org.delta.pass;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -23,7 +26,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     Context context;
 
 
-    public Date EpochConvert(String date)
+    public static Date EpochConvert(String date)
     {
         return new Date(Long.parseLong(date));
     }
@@ -34,10 +37,14 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         // each data item is just a string in this case
         public TextView Contact;
         public TextView TimeStamp;
+        public ImageView ppic;
         public ViewHolder(View v) {
             super(v);
             Contact = (TextView)v.findViewById(R.id.Contact);
             TimeStamp = (TextView)v.findViewById(R.id.Time);
+            ppic =(ImageView)v.findViewById(R.id.profilepic);
+
+
         }
     }
 
@@ -64,7 +71,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
@@ -86,6 +93,24 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
 
                 context.startActivity(i);
+            }
+        });
+
+        holder.TimeStamp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                if(holder.Contact.getText().equals(contact.get(position))) {
+                    if (holder.ppic.getVisibility() == View.GONE) {
+                        //jid.get(position).substring(0,jid.indexOf("@"))
+                        holder.ppic.setVisibility(View.VISIBLE);
+                        Bitmap b = BitmapFactory.decodeFile("/storage/emulated/0/d11" + ".jpg");
+                        holder.ppic.setImageBitmap(b);
+                    } else {
+                        holder.ppic.setVisibility(View.GONE);
+                    }
+                }
             }
         });
 
