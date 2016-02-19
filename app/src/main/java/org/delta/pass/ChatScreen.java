@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -32,6 +34,25 @@ public class ChatScreen extends Activity {
     ArrayList<String> timestamp;
 
     String jid;
+
+    Handler handler =new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            //super.handleMessage(msg);
+
+            mRecyclerView.setItemAnimator(new FadeInAnimator());
+
+            AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
+            ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
+            //        scaleAdapter.setFirstOnly(false);
+            //        scaleAdapter.setInterpolator(new OvershootInterpolator());
+            mRecyclerView.setAdapter(scaleAdapter);
+            //mRecyclerView.setAdapter(mAdapter);
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +83,21 @@ public class ChatScreen extends Activity {
         mRecyclerView.setLayoutManager(mLayoutManager);
 
 
-        getChatList();
+
+
+        Thread p=new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                refreshContent();
+            }
+        });
+
+
+        p.start();
+
+
         mAdapter = new ChatAdapter(messages,timestamp);
 
         mRecyclerView.setItemAnimator(new FadeInAnimator());
@@ -77,7 +112,18 @@ public class ChatScreen extends Activity {
             @Override
             public void onRefresh() {
 
-                refreshContent();
+                Thread p=new Thread(new Runnable() {
+
+                    @Override
+                    public void run() {
+
+                        refreshContent();
+                    }
+                });
+
+
+                p.start();
+
             }
         });
 
@@ -133,15 +179,8 @@ public class ChatScreen extends Activity {
         getChatList();
         mAdapter = new ChatAdapter(messages,timestamp);
 
-        mRecyclerView.setItemAnimator(new FadeInAnimator());
+        handler.sendEmptyMessage(0);
 
-        AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
-        ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
-        //        scaleAdapter.setFirstOnly(false);
-        //        scaleAdapter.setInterpolator(new OvershootInterpolator());
-        mRecyclerView.setAdapter(scaleAdapter);
-        //mRecyclerView.setAdapter(mAdapter);
-        mSwipeRefreshLayout.setRefreshing(false);
 
     }
 

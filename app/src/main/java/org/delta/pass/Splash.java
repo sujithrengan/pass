@@ -1,7 +1,9 @@
 package org.delta.pass;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -26,7 +28,7 @@ import java.util.List;
 import eu.chainfire.libsuperuser.Shell;
 
 
-public class Splash extends ActionBarActivity {
+public class Splash extends Activity {
 
     String utext="null";
 
@@ -34,30 +36,68 @@ public class Splash extends ActionBarActivity {
 
 
         private class SUTask extends AsyncTask<Void, Boolean, Boolean> {
-        private List<String> suResult = null;
+            private final Context context;
+            private List<String> suResult = null;
+
+            public SUTask(Context context) {
+                this.context=context;
+            }
         @Override
         protected Boolean doInBackground(Void... params) {
             // this method is executed in a background thread
             // no problem calling su here
-            if (Shell.SU.available()) {
 
                 suResult=Shell.SU.run(new String[]{"busybox chmod -c -R 777 "+Utilities.dbpath2});
                 //suResult=Shell.SU.run(new String[]{"cat storage/sdcard1/s.txt" });
-                return true;
 
-            }
-            else
-                return false;
+                getContactsList();
+
+            return true;
         }
 
         @Override
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
             root=aBoolean;
-            setResult(suResult);
+            //setResult(suResult);
 
+
+           Log.e("Co",Utilities.contacts.get("918675185789@s.whatsapp.net").name+"-"+Utilities.contacts.get("919790892234@s.whatsapp.net").name);
+            this.context.startActivity(new Intent(Splash.this,ChatList.class));
         }
     }
+
+
+    private void getContactsList()
+    {
+        File file = new File(Utilities.dbpath+Utilities.dbname_contacts);
+
+        if (file.exists()) {
+
+            SQLiteDatabase db = SQLiteDatabase.openDatabase(Utilities.dbpath+Utilities.dbname_contacts, null, SQLiteDatabase.OPEN_READWRITE);
+
+            //SELECT
+            Cursor cursor = db.rawQuery("Select jid,display_name,wa_name from wa_contacts order by jid", null);
+            if (cursor.moveToFirst()) {
+
+                Utilities.contacts.clear();
+
+                do {
+                    String jid=cursor.getString(0);
+                    Utilities.contacts.put(jid,new Contact(jid,cursor.getString(1),cursor.getString(2)));
+
+
+                } while (cursor.moveToNext());
+            }
+            db.close();
+
+        }
+
+        else{
+            Toast.makeText(Splash.this,"NoRoot",Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     private void setResult(List<String> suResult)
     {
@@ -147,7 +187,7 @@ public class Splash extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-        new SUTask().execute();
+        new SUTask(Splash.this).execute();
 
     }
 

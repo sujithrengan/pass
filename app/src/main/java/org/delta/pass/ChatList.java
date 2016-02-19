@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -44,12 +45,32 @@ public class ChatList extends Activity {
     ArrayList<String> jid;
 
 
+
+
+    Handler handler =new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            //super.handleMessage(msg);
+
+
+            mRecyclerView.setItemAnimator(new FadeInAnimator());
+
+            AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
+            ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
+            //        scaleAdapter.setFirstOnly(false);
+            //        scaleAdapter.setInterpolator(new OvershootInterpolator());
+            mRecyclerView.setAdapter(scaleAdapter);
+            //mRecyclerView.setAdapter(mAdapter);
+            mSwipeRefreshLayout.setRefreshing(false);
+        }
+
+    };
+
     private class SUTask extends AsyncTask<Void, Boolean, Boolean> {
         private List<String> suResult = null;
         @Override
         protected Boolean doInBackground(Void... params) {
-            // this method is executed in a background thread
-            // no problem calling su here
 
             if (Shell.SU.available()) {
 
@@ -75,62 +96,80 @@ public class ChatList extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_list);
-/*
 
-        if (savedInstanceState == null) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            SwipeRefreshChatList fragment = new SwipeRefreshChatList();
-            transaction.replace(R.id.sample_content_fragment, fragment);
-            transaction.commit();
-        }
-*/
-
-
+        //Root Task to change permissions and the necessary
 
         new SUTask().execute();
 
 
+        //Initialise Arraylists
 
         contact=new ArrayList<String>();
         timestamp=new ArrayList<String>();
         jid=new ArrayList<String>();
+
+
+        //RecycleView Setup
+
         mRecyclerView = (RecyclerView) findViewById(R.id.recycle_view);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setColorScheme(R.color.color_scheme_1_1, R.color.color_scheme_1_2,
                 R.color.color_scheme_1_3, R.color.color_scheme_1_4);
 
-        // use this setting to improve performance if you know that changes
-        // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
-
-        // use a linear layout manager
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
 
 
-        getChatList();
+        //GetContactList on a new Thread
+
+
+
+        //GetChatList on a new thread
+
+        Thread p=new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                refreshContent();
+            }
+        }); p.start();
+
+
+        //Initalise Dummy List
+
         mAdapter = new ChatListAdapter(contact,timestamp,jid,ChatList.this);
-
-
         mRecyclerView.setItemAnimator(new FadeInAnimator());
-
         AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
         ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
         //        scaleAdapter.setFirstOnly(false);
         //        scaleAdapter.setInterpolator(new OvershootInterpolator());
         mRecyclerView.setAdapter(scaleAdapter);
 
-        //mRecyclerView.setAdapter(mAdapter);
+        // OnRefresh Action
+
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
-                refreshContent();
+                Thread p=new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        refreshContent();
+                    }
+                });
+                p.start();
             }
         });
 
 
     }
+
+
+
+
 
 
 
@@ -152,25 +191,24 @@ public class ChatList extends Activity {
                 jid.clear();
                 do {
                     String c=cursor.getString(0);
-                    if(c.endsWith("s.whatsapp.net"))
-                    contact.add(c.substring(2,c.indexOf("@")));
-                    else
-                        contact.add(cursor.getString(1));
+                    //if(c.endsWith("s.whatsapp.net"))
+                        //contact.add(c.substring(2,c.indexOf("@")));
+                    //else
+                        //contact.add(cursor.getString(1));
+                        contact.add(c);
                     timestamp.add(cursor.getString(2));
                     jid.add(cursor.getString(0));
 
                 } while (cursor.moveToNext());
             }
+
+
             /*//UPDATE
             ContentValues values = new ContentValues();
             String where = "jid" + "= '" + jid + "'";
             values.put("status", "BlackoutEpisodes");
             int count =db.update("wa_contacts", values, where, null);
             */
-
-
-
-
             db.close();
 
         }
@@ -184,17 +222,10 @@ public class ChatList extends Activity {
 
         getChatList();
         mAdapter = new ChatListAdapter(contact,timestamp,jid,ChatList.this);
-        //mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setItemAnimator(new FadeInAnimator());
 
-        AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(mAdapter);
-        ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
-        //        scaleAdapter.setFirstOnly(false);
-        //        scaleAdapter.setInterpolator(new OvershootInterpolator());
-        mRecyclerView.setAdapter(scaleAdapter);
-        mSwipeRefreshLayout.setRefreshing(false);
+        handler.sendEmptyMessage(0);
 
-        }
+    }
 
 
 

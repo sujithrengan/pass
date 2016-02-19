@@ -59,7 +59,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     // Create new views (invoked by the layout manager)
     @Override
     public ChatListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                   int viewType) {
+                                                         int viewType) {
         // create a new view
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.chatlist_single, parent, false);
@@ -76,7 +76,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         // - replace the contents of the view with that element
 
 
-        holder.Contact.setText(contact.get(position));
+        if(Utilities.contacts.get(contact.get(position)).name!=null)
+        holder.Contact.setText(Utilities.contacts.get(contact.get(position)).name);
+
+        else
+            holder.Contact.setText(contact.get(position).substring(2,contact.get(position).indexOf("@")));
+
         holder.TimeStamp.setText(timestamp.get(position));
 
         Date d=EpochConvert(timestamp.get(position));
@@ -93,6 +98,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
 
                 context.startActivity(i);
+
             }
         });
 
