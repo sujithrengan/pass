@@ -95,7 +95,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         holder.TimeStamp.setText(timestamp.get(position));
 
         Date d=EpochConvert(timestamp.get(position));
-        holder.TimeStamp.setText(d.getHours()+":"+d.getMinutes()+"  "+d.getDate()+"/"+String.valueOf(d.getMonth()+1)+"/"+d.getYear());
+        holder.TimeStamp.setText(String.format("%02d",d.getHours())+":"+String.format("%02d",d.getMinutes())+"  "+d.getDate()+"/"+String.valueOf(d.getMonth()+1)+"/"+d.getYear());
 
         if(timestamp.get(position).compareTo(Utilities.lastread)>0)
         {

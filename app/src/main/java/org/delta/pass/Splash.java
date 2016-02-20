@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import eu.chainfire.libsuperuser.Shell;
@@ -52,7 +53,10 @@ public class Splash extends Activity {
                 //suResult=Shell.SU.run(new String[]{});
                 //suResult=Shell.SU.run(new String[]{"cat storage/sdcard1/s.txt" });
 
+            //Weird reason,only media goes first -.-
+                getMediaList();
                 getContactsList();
+
 
             return true;
         }
@@ -64,20 +68,80 @@ public class Splash extends Activity {
             //setResult(suResult);
 
 
-           Log.e("Co",Utilities.contacts.get("918675185789@s.whatsapp.net").name+"-"+Utilities.contacts.get("919790892234@s.whatsapp.net").name);
+           //Log.e("Co",Utilities.contacts.get("918675185789@s.whatsapp.net").name+"-"+Utilities.contacts.get("919790892234@s.whatsapp.net").name);
+            if(!Utilities.contacts.isEmpty())
             this.context.startActivity(new Intent(Splash.this,ChatList.class));
+
         }
     }
+    public static String EpochtomediaConvert(String date)
+    {
+        Date d=new Date(Long.parseLong(date));
+        String mdate=String.valueOf(d.getYear() + 1900);
 
+        mdate+=String.format("%02d", (d.getMonth()+1));
+        mdate+=String.format("%02d", d.getDate());
+
+        return mdate;
+    }
+
+    private void getMediaList()
+    {
+        File file = new File(Utilities.dbpath+Utilities.dbname_messages);
+
+        if (file.exists()) {
+
+            SQLiteDatabase db = SQLiteDatabase.openDatabase(Utilities.dbpath+Utilities.dbname_messages, null, SQLiteDatabase.OPEN_READWRITE);
+
+            int i=0;
+            //SELECT
+            Cursor cursor = db.rawQuery("Select key_remote_jid,timestamp,media_wa_type from messages where media_wa_type!=\"0\" order by timestamp", null);
+            if (cursor.moveToFirst()) {
+
+                Utilities.contacts.clear();
+
+                String emd="";
+                int mcount=0;
+                do {
+                    String d=EpochtomediaConvert(cursor.getString(1));
+                    if(emd.equals(d)) {
+                        mcount++;
+                        Utilities.media.put(cursor.getString(0) + cursor.getString(1),new String[]{d + "-WA" + String.format("%04d", mcount),cursor.getString(2)});
+                    }
+                    else{
+                        mcount=0;
+                        emd=d;
+                        Utilities.media.put(cursor.getString(0) + cursor.getString(1), new String[]{d + "-WA" + String.format("%04d", mcount),cursor.getString(2)});
+                    }
+
+
+                    i++;
+                    //if(i>4330)
+                        //Log.e("media",Utilities.media.get(cursor.getString(0) + cursor.getString(1))[0]);
+
+                } while (cursor.moveToNext());
+
+                Log.e("media",String.valueOf(i));
+            }
+            db.close();
+
+        }
+
+        else{
+            Toast.makeText(Splash.this,"NoRoot",Toast.LENGTH_SHORT).show();
+        }
+    }
 
     private void getContactsList()
     {
         File file = new File(Utilities.dbpath+Utilities.dbname_contacts);
 
+
         if (file.exists()) {
 
             SQLiteDatabase db = SQLiteDatabase.openDatabase(Utilities.dbpath+Utilities.dbname_contacts, null, SQLiteDatabase.OPEN_READWRITE);
 
+            int i=0;
             //SELECT
             Cursor cursor = db.rawQuery("Select jid,display_name,wa_name from wa_contacts order by jid", null);
             if (cursor.moveToFirst()) {
@@ -89,8 +153,11 @@ public class Splash extends Activity {
                     Utilities.contacts.put(jid,new Contact(jid,cursor.getString(1),cursor.getString(2)));
 
 
+                    i++;
+
                 } while (cursor.moveToNext());
             }
+            Log.e("contacts",String.valueOf(i));
             db.close();
 
         }

@@ -109,7 +109,7 @@ public class ChatScreen extends Activity {
         p.start();
 
 
-        mAdapter = new ChatAdapter(messages,timestamp,contact,ChatScreen.this);
+        mAdapter = new ChatAdapter(messages,timestamp,contact,jid,ChatScreen.this);
 
         mRecyclerView.setItemAnimator(new FadeInAnimator());
 
@@ -194,7 +194,7 @@ public class ChatScreen extends Activity {
     private void refreshContent(){
 
         getChatList();
-        mAdapter = new ChatAdapter(messages,timestamp,contact,ChatScreen.this);
+        mAdapter = new ChatAdapter(messages,timestamp,contact,jid,ChatScreen.this);
 
         handler.sendEmptyMessage(0);
 

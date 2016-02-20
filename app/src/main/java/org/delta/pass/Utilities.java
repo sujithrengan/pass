@@ -16,6 +16,7 @@ public class Utilities {
     public static String dbname_contacts="wa.db";
     public static String dbname_messages="msgstore.db";
     public static HashMap<String,Contact> contacts=new HashMap<String,Contact>();
+    public static HashMap<String,String[]> media=new HashMap<String,String[]>();
 
     public static SharedPreferences prefs;
     public static String lastread;

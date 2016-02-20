@@ -25,6 +25,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     ArrayList<String> timestamp;
     ArrayList<String> contact;
     Context context;
+    String jid;
     Typeface t;
 
     // Provide a reference to the views for each data item
@@ -48,11 +49,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ChatAdapter(ArrayList<String> message,ArrayList<String> tm,ArrayList<String> c,Context context) {
+    public ChatAdapter(ArrayList<String> message,ArrayList<String> tm,ArrayList<String> c,String jid,Context context) {
         this.message=message;
         this.timestamp=tm;
         this.contact=c;
         this.context=context;
+        this.jid=jid;
         this.t= Typeface.createFromAsset(context.getAssets(), "fonts/hn.otf");
     }
 
@@ -77,12 +79,41 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
 
         holder.Message.setTypeface(t);
-        holder.TimeStamp.setTypeface(t);
-        holder.Message.setText(message.get(position).substring(0,message.get(position).length()-1));
+       // holder.TimeStamp.setTypeface(t);
+        if(!message.get(position).substring(0,message.get(position).length()-1).equals("null")) {
+
+            holder.ppic.setVisibility(View.GONE);
+            holder.Message.setText(message.get(position).substring(0, message.get(position).length() - 1));
+        }
+
+        else if(Utilities.media.containsKey(jid+timestamp.get(position)))
+        {
+
+            switch (Utilities.media.get(jid+timestamp.get(position))[1])
+            {
+                case "1":
+                    holder.Message.setText("IMG-"+Utilities.media.get(jid+timestamp.get(position))[0]+".jpeg");
+                    Bitmap b = BitmapFactory.decodeFile("/storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-"+Utilities.media.get(jid+timestamp.get(position))[0]+ ".jpg");
+                    holder.ppic.setImageBitmap(b);
+                    holder.ppic.setVisibility(View.VISIBLE);
+                    break;
+                case "2":
+                    holder.Message.setText("AUD-"+Utilities.media.get(jid+timestamp.get(position))[0]+".aac");
+                    break;
+                case "3":
+                    holder.Message.setText("VID-"+Utilities.media.get(jid+timestamp.get(position))[0]+".mp4");
+                    break;
+            }
+        }
+        else{
+            holder.ppic.setVisibility(View.GONE);
+        }
+
+
         //holder.TimeStamp.setText(timestamp.get(position));
 
         Date d=ChatListAdapter.EpochConvert(timestamp.get(position));
-        holder.TimeStamp.setText(d.getHours()+":"+d.getMinutes()+"  "+d.getDate()+"/"+String.valueOf(d.getMonth()+1)+"/"+d.getYear());
+        holder.TimeStamp.setText(String.format("%02d",d.getHours())+":"+String.format("%02d",d.getMinutes())+"  "+d.getDate()+"/"+String.valueOf(d.getMonth()+1)+"/"+d.getYear());
 
         if(message.get(position).endsWith("0")) {
             holder.Contact.setText(Utilities.contacts.get(contact.get(position)).name);
@@ -93,8 +124,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             holder.box.setGravity(Gravity.RIGHT);
         }
 
-        //Bitmap b = BitmapFactory.decodeFile("/storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20160219-WA0000" + ".jpg");
-        //holder.ppic.setImageBitmap(b);
+
 
     }
 
