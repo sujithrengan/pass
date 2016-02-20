@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +25,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
     ArrayList<String> contact;
     ArrayList<String> timestamp;
     ArrayList<String> jid;
+    int ppicpos;
+    Typeface t;
     Context context;
 
 
@@ -38,11 +42,13 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         public TextView Contact;
         public TextView TimeStamp;
         public ImageView ppic;
+        public ImageView unread;
         public ViewHolder(View v) {
             super(v);
             Contact = (TextView)v.findViewById(R.id.Contact);
             TimeStamp = (TextView)v.findViewById(R.id.Time);
             ppic =(ImageView)v.findViewById(R.id.profilepic);
+            unread=(ImageView)v.findViewById(R.id.unreadview);
 
 
         }
@@ -54,6 +60,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         this.timestamp=tm;
         this.jid=jid;
         this.context=context;
+        this.ppicpos=-1;
+        this.t=Typeface.createFromAsset(context.getAssets(),"fonts/hn.otf");
     }
 
     // Create new views (invoked by the layout manager)
@@ -75,6 +83,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
 
+        holder.Contact.setTypeface(t);
+        holder.TimeStamp.setTypeface(t);
 
         if(Utilities.contacts.get(contact.get(position)).name!=null)
         holder.Contact.setText(Utilities.contacts.get(contact.get(position)).name);
@@ -86,6 +96,29 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
 
         Date d=EpochConvert(timestamp.get(position));
         holder.TimeStamp.setText(d.getHours()+":"+d.getMinutes()+"  "+d.getDate()+"/"+String.valueOf(d.getMonth()+1)+"/"+d.getYear());
+
+        if(timestamp.get(position).compareTo(Utilities.lastread)>0)
+        {
+            holder.unread.setVisibility(View.VISIBLE);
+        }
+        else
+            holder.unread.setVisibility(View.INVISIBLE);
+
+
+        if(position==ppicpos) {
+            if (holder.ppic.getVisibility() == View.GONE) {
+                //jid.get(position).substring(0,jid.indexOf("@"))
+                holder.ppic.setVisibility(View.VISIBLE);
+                Bitmap b = BitmapFactory.decodeFile("/storage/emulated/0/WhatsApp/Profile Pictures/" +contact.get(position).substring(0,contact.get(position).indexOf("@"))+ ".jpg");
+                holder.ppic.setImageBitmap(b);
+            } else {
+                holder.ppic.setVisibility(View.GONE);
+            }
+        }
+        else{
+
+            holder.ppic.setVisibility(View.GONE);
+        }
 
         holder.Contact.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,17 +139,26 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
             @Override
             public void onClick(View view) {
 
+                ppicpos=position;
 
-                if(holder.Contact.getText().equals(contact.get(position))) {
+                if(position==ppicpos) {
                     if (holder.ppic.getVisibility() == View.GONE) {
                         //jid.get(position).substring(0,jid.indexOf("@"))
                         holder.ppic.setVisibility(View.VISIBLE);
-                        Bitmap b = BitmapFactory.decodeFile("/storage/emulated/0/d11" + ".jpg");
+                        Bitmap b = BitmapFactory.decodeFile("/storage/emulated/0/WhatsApp/Profile Pictures/" +contact.get(position).substring(0,contact.get(position).indexOf("@"))+ ".jpg");
                         holder.ppic.setImageBitmap(b);
                     } else {
                         holder.ppic.setVisibility(View.GONE);
+                        ppicpos=-1;
                     }
                 }
+                else{
+
+                    holder.ppic.setVisibility(View.GONE);
+                }
+
+
+
             }
         });
 

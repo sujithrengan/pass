@@ -1,10 +1,15 @@
 package org.delta.pass;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,6 +23,9 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     private String[] mDataset;
     ArrayList<String> message;
     ArrayList<String> timestamp;
+    ArrayList<String> contact;
+    Context context;
+    Typeface t;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -26,19 +34,26 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         // each data item is just a string in this case
         public TextView Message;
         public TextView TimeStamp;
+        public TextView Contact;
+        public ImageView ppic;
         public LinearLayout box;
         public ViewHolder(View v) {
             super(v);
             Message = (TextView)v.findViewById(R.id.Message);
             TimeStamp = (TextView)v.findViewById(R.id.Time);
             box = (LinearLayout)v.findViewById(R.id.singlelistlayout);
+            Contact =(TextView)v.findViewById(R.id.Contact);
+            ppic =(ImageView)v.findViewById(R.id.picmessage);
         }
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public ChatAdapter(ArrayList<String> message,ArrayList<String> tm) {
+    public ChatAdapter(ArrayList<String> message,ArrayList<String> tm,ArrayList<String> c,Context context) {
         this.message=message;
         this.timestamp=tm;
+        this.contact=c;
+        this.context=context;
+        this.t= Typeface.createFromAsset(context.getAssets(), "fonts/hn.otf");
     }
 
     // Create new views (invoked by the layout manager)
@@ -59,16 +74,27 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder holder, int position) {
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
+
+
+        holder.Message.setTypeface(t);
+        holder.TimeStamp.setTypeface(t);
         holder.Message.setText(message.get(position).substring(0,message.get(position).length()-1));
         //holder.TimeStamp.setText(timestamp.get(position));
 
         Date d=ChatListAdapter.EpochConvert(timestamp.get(position));
         holder.TimeStamp.setText(d.getHours()+":"+d.getMinutes()+"  "+d.getDate()+"/"+String.valueOf(d.getMonth()+1)+"/"+d.getYear());
 
-        if(message.get(position).endsWith("0"))
+        if(message.get(position).endsWith("0")) {
+            holder.Contact.setText(Utilities.contacts.get(contact.get(position)).name);
             holder.box.setGravity(Gravity.LEFT);
-        else
+        }
+        else {
+            holder.Contact.setText("me");
             holder.box.setGravity(Gravity.RIGHT);
+        }
+
+        //Bitmap b = BitmapFactory.decodeFile("/storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20160219-WA0000" + ".jpg");
+        //holder.ppic.setImageBitmap(b);
 
     }
 

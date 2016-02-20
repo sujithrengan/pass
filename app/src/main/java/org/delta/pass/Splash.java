@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -47,7 +48,8 @@ public class Splash extends Activity {
             // this method is executed in a background thread
             // no problem calling su here
 
-                suResult=Shell.SU.run(new String[]{"busybox chmod -c -R 777 "+Utilities.dbpath2});
+                suResult=Shell.SU.run(new String[]{"busybox chmod -c -R 777 "+Utilities.dbpath2,"busybox chmod -c -R 777 "+Utilities.ppicpath});
+                //suResult=Shell.SU.run(new String[]{});
                 //suResult=Shell.SU.run(new String[]{"cat storage/sdcard1/s.txt" });
 
                 getContactsList();
@@ -187,10 +189,25 @@ public class Splash extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        Utilities.prefs=this.getSharedPreferences("pop",0);
+        Utilities.lastread=Utilities.prefs.getString("lastread",String.valueOf(System.currentTimeMillis()));
+
+
+        SharedPreferences.Editor editor = Utilities.prefs.edit();
+        editor.putString("lastread", String.valueOf(System.currentTimeMillis()));
+        editor.apply();
         new SUTask(Splash.this).execute();
 
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SharedPreferences.Editor editor = Utilities.prefs.edit();
+        editor.putString("lastread",String.valueOf(System.currentTimeMillis()));
+        editor.apply();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

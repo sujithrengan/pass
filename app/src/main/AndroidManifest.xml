@@ -19,13 +19,13 @@
         </activity>
         <activity
             android:name=".ChatList"
-            android:label="X" >
+            android:label="XPass" >
 
         </activity>
         <activity
             android:name=".ChatScreen"
             android:parentActivityName=".ChatList"
-            android:label="@string/title_activity_chat_screen" >
+            android:label="XPass" >
         </activity>
     </application>
 

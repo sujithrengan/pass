@@ -3,8 +3,10 @@ package org.delta.pass;
 import android.app.Activity;
 import android.app.SearchManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -32,6 +34,10 @@ public class ChatScreen extends Activity {
     SwipeRefreshLayout mSwipeRefreshLayout;
     ArrayList<String> messages;
     ArrayList<String> timestamp;
+    ArrayList<String> contact;
+
+    int isgroup=0;
+
 
     String jid;
 
@@ -57,18 +63,23 @@ public class ChatScreen extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //this.setTitle(jid);
         setContentView(R.layout.activity_chat_screen);
+        //getActionBar().setTitle(jid);
 
 
         Bundle b=getIntent().getExtras();
         jid="";
         jid=b.getString("jid");
+        if(jid.contains("g.us"))
+            isgroup=1;
 
 
 
 
         messages=new ArrayList<String>();
         timestamp=new ArrayList<String>();
+        contact=new ArrayList<String>();
         mRecyclerView = (RecyclerView) findViewById(R.id.recycle_view);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setColorScheme(R.color.color_scheme_1_1, R.color.color_scheme_1_2,
@@ -98,7 +109,7 @@ public class ChatScreen extends Activity {
         p.start();
 
 
-        mAdapter = new ChatAdapter(messages,timestamp);
+        mAdapter = new ChatAdapter(messages,timestamp,contact,ChatScreen.this);
 
         mRecyclerView.setItemAnimator(new FadeInAnimator());
 
@@ -140,11 +151,12 @@ public class ChatScreen extends Activity {
             SQLiteDatabase db = SQLiteDatabase.openDatabase(Utilities.dbpath+Utilities.dbname_messages, null, SQLiteDatabase.OPEN_READWRITE);
 
             //SELECT
-            Cursor cursor = db.rawQuery("Select key_from_me,data,timestamp from messages where key_remote_jid=\""+jid+"\" order by timestamp desc", null);
+            Cursor cursor = db.rawQuery("Select key_from_me,data,timestamp,remote_resource from messages where key_remote_jid=\""+jid+"\" order by timestamp desc", null);
             if (cursor.moveToFirst()) {
 
                 messages.clear();
                 timestamp.clear();
+                contact.clear();
                 do {
                     Integer k=cursor.getInt(0);
                     if(k==0)
@@ -152,6 +164,11 @@ public class ChatScreen extends Activity {
                     else
                         messages.add(cursor.getString(1)+"1");
                     timestamp.add(cursor.getString(2));
+
+                    if(isgroup==1)
+                        contact.add(cursor.getString(3));
+                    else
+                        contact.add(jid);
 
                 } while (cursor.moveToNext());
             }
@@ -177,13 +194,20 @@ public class ChatScreen extends Activity {
     private void refreshContent(){
 
         getChatList();
-        mAdapter = new ChatAdapter(messages,timestamp);
+        mAdapter = new ChatAdapter(messages,timestamp,contact,ChatScreen.this);
 
         handler.sendEmptyMessage(0);
 
 
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SharedPreferences.Editor editor = Utilities.prefs.edit();
+        editor.putString("lastread",String.valueOf(System.currentTimeMillis()));
+        editor.apply();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

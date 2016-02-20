@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.SearchManager;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
@@ -87,9 +88,17 @@ public class ChatList extends Activity {
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
 
-            Log.e("ll",suResult.get(0));
+            Log.e("ll", suResult.get(0));
 
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SharedPreferences.Editor editor = Utilities.prefs.edit();
+        editor.putString("lastread",String.valueOf(System.currentTimeMillis()));
+        editor.apply();
     }
 
     @Override
@@ -153,7 +162,7 @@ public class ChatList extends Activity {
             @Override
             public void onRefresh() {
 
-                Thread p=new Thread(new Runnable() {
+                Thread p = new Thread(new Runnable() {
                     @Override
                     public void run() {
 

@@ -3,7 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:background="#eeeeee"
+android:paddingLeft="3dp"
+    android:paddingRight="3dp"
     android:layout_height="match_parent"
     android:id="@+id/sample_main_layout">
 

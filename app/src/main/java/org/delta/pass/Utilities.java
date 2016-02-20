@@ -1,5 +1,7 @@
 package org.delta.pass;
 
+import android.content.SharedPreferences;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -14,5 +16,8 @@ public class Utilities {
     public static String dbname_contacts="wa.db";
     public static String dbname_messages="msgstore.db";
     public static HashMap<String,Contact> contacts=new HashMap<String,Contact>();
+
+    public static SharedPreferences prefs;
+    public static String lastread;
 
 }
