@@ -4,15 +4,23 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.ThumbnailUtils;
+import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -38,6 +46,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         public TextView Contact;
         public ImageView ppic;
         public LinearLayout box;
+        public FrameLayout videoFrame;
         public ViewHolder(View v) {
             super(v);
             Message = (TextView)v.findViewById(R.id.Message);
@@ -45,6 +54,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
             box = (LinearLayout)v.findViewById(R.id.singlelistlayout);
             Contact =(TextView)v.findViewById(R.id.Contact);
             ppic =(ImageView)v.findViewById(R.id.picmessage);
+            videoFrame = (FrameLayout)v.findViewById(R.id.videoFrameLayout);
         }
     }
 
@@ -85,6 +95,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         if(!message.get(position).substring(0,message.get(position).length()-1).equals("null")) {
 
             holder.ppic.setVisibility(View.GONE);
+            holder.videoFrame.setVisibility(View.GONE);
             holder.Message.setText(message.get(position).substring(0, message.get(position).length() - 1));
         }
 
@@ -97,14 +108,38 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
                     holder.Message.setText("IMG-"+Utilities.media.get(jid+timestamp.get(position))[0]+".jpeg");
                     Bitmap b = BitmapFactory.decodeFile("/storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-"+Utilities.media.get(jid+timestamp.get(position))[0]+ ".jpg");
                     holder.ppic.setImageBitmap(b);
+                    holder.videoFrame.setVisibility(View.GONE);
                     holder.ppic.setVisibility(View.VISIBLE);
                     break;
                 case "2":
                     holder.Message.setText("AUD-"+Utilities.media.get(jid+timestamp.get(position))[0]+".aac");
+                    holder.videoFrame.setVisibility(View.GONE);
+                    holder.ppic.setVisibility(View.GONE);
                     break;
                 case "3":
                     holder.Message.setText("VID-"+Utilities.media.get(jid+timestamp.get(position))[0]+".mp4");
+                    File file = new File("/storage/emulated/0/WhatsApp/Media/WhatsApp Video/VID-"+Utilities.media.get(jid+timestamp.get(position))[0]+".mp4");
+                    if(file.exists()) {
+                        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                        holder.videoFrame.setVisibility(View.VISIBLE);
+                        final VideoView videoView = (VideoView) inflater.inflate(R.layout.video_view, null);
+                        MediaController mediaController = new MediaController(context);
+                        mediaController.setAnchorView(videoView);
+                        videoView.setMediaController(mediaController);
+                        videoView.setVideoPath("/storage/emulated/0/WhatsApp/Media/WhatsApp Video/VID-" + Utilities.media.get(jid + timestamp.get(position))[0] + ".mp4");
+
+                        /*Bitmap thumbnail = ThumbnailUtils.createVideoThumbnail("/storage/emulated/0/WhatsApp/Media/WhatsApp Video/VID-" + Utilities.media.get(jid + timestamp.get(position))[0] + ".mp4",
+                                MediaStore.Images.Thumbnails.MINI_KIND);
+                        BitmapDrawable bitmapDrawable = new BitmapDrawable(thumbnail);
+                        videoView.setBackgroundDrawable(bitmapDrawable);
+*/
+                        videoView.seekTo(1000);
+                        holder.videoFrame.addView(videoView);
+                        Log.e("Videoset", "vide");
+                    }
                     break;
+
             }
         }
         else{

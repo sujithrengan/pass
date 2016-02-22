@@ -231,7 +231,7 @@ public class ChatScreen extends Activity {
 
             final Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
             intent.setPackage("com.google.android.googlequicksearchbox");
-            intent.putExtra(SearchManager.QUERY, "Send Whatsapp text heyyy to "+Utilities.contacts.get(jid).name);
+            intent.putExtra(SearchManager.QUERY, "Send Whatsapp text to "+Utilities.contacts.get(jid).name);
             startActivity(intent);
             return true;
         }
