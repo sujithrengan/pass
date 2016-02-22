@@ -115,6 +115,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                 holder.ppic.setVisibility(View.GONE);
             }
         }
+
         else{
 
             holder.ppic.setVisibility(View.GONE);
@@ -155,7 +156,10 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
                 else{
 
                     holder.ppic.setVisibility(View.GONE);
+
                 }
+
+
 
 
 

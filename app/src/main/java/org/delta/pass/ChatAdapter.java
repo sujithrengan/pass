@@ -78,6 +78,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         // - replace the contents of the view with that element
 
 
+        holder.ppic.setVisibility(View.GONE);
+        holder.Message.setText("");
         holder.Message.setTypeface(t);
        // holder.TimeStamp.setTypeface(t);
         if(!message.get(position).substring(0,message.get(position).length()-1).equals("null")) {

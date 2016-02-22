@@ -9,7 +9,7 @@ import java.util.HashMap;
  * Created by HP on 16-02-2016.
  */
 public class Utilities {
-    public static String dbpath2="/data/data/com.whatsapp/databases/";
+    public static String dbpath2="/data/data/com.whatsapp/";
     public static String dbname2="wa.db";
     public static String dbpath="/data/data/com.whatsapp/databases/";
     public static String ppicpath="/storage/emulated/0/WhatsApp/";

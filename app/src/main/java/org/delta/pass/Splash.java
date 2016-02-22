@@ -49,7 +49,7 @@ public class Splash extends Activity {
             // this method is executed in a background thread
             // no problem calling su here
 
-                suResult=Shell.SU.run(new String[]{"busybox chmod -c -R 777 "+Utilities.dbpath2,"busybox chmod -c -R 777 "+Utilities.ppicpath});
+                suResult=Shell.SU.run(new String[]{"busybox chmod -c -R 777 "+Utilities.dbpath2,"busybox chmod -c -R 777 "+Utilities.ppicpath,"busybox chmod -R 777 data/data/com.whatsapp/databases/wa.db"});
                 //suResult=Shell.SU.run(new String[]{});
                 //suResult=Shell.SU.run(new String[]{"cat storage/sdcard1/s.txt" });
 
